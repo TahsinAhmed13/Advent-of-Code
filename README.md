@@ -8,6 +8,6 @@ Langauges I've used so far:
 * [Haskell](https://github.com/TahsinAhmed13/Advent-of-Code/tree/main/2022) (2022)
 
 Languages I hope to use: 
-* [Rust](https://www.rust-lang.org/) (coming 2023?)
+* ~~[Rust](https://www.rust-lang.org/) (coming 2023?)~~
 * [Go](https://go.dev/) (coming 2024?)
 * [Zig](https://ziglang.org/)

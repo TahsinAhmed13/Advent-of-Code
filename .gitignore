@@ -1,5 +1,6 @@
+*.txt
 *.exe
 *.obj
 *.hi
 *.o
-*.txt
+*.pdb
