@@ -19,6 +19,6 @@
 | [15](https://github.com/TahsinAhmed13/Advent-of-Code/blob/main/2023/day15/main.rs) | :heavy_check_mark: | :heavy_check_mark: |
 | [16](https://github.com/TahsinAhmed13/Advent-of-Code/blob/main/2023/day16/main.rs) | :heavy_check_mark: | :heavy_check_mark: |
 | [17](https://github.com/TahsinAhmed13/Advent-of-Code/blob/main/2023/day17/main.rs) | :heavy_check_mark: | :heavy_check_mark: |
-| [17](https://github.com/TahsinAhmed13/Advent-of-Code/blob/main/2023/day18/main.rs) | :heavy_check_mark: | :heavy_check_mark: |
-| [17](https://github.com/TahsinAhmed13/Advent-of-Code/blob/main/2023/day19/main.rs) | :heavy_check_mark: | :heavy_check_mark: |
+| [18](https://github.com/TahsinAhmed13/Advent-of-Code/blob/main/2023/day18/main.rs) | :heavy_check_mark: | :heavy_check_mark: |
+| [19](https://github.com/TahsinAhmed13/Advent-of-Code/blob/main/2023/day19/main.rs) | :heavy_check_mark: | :heavy_check_mark: |
 
