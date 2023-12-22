@@ -26,10 +26,7 @@ fn parse_bricks(input: &Vec<String>) -> Vec<Brick> {
 
 fn find_supports(bricks: &mut Vec<Brick>) -> Vec<Vec<usize>> {
     bricks.sort_by(|a, b| a.0.2.cmp(&b.0.2));  
-    let mut supports = Vec::<Vec<usize>>::new(); 
-    for _ in 0..bricks.len() {
-        supports.push(Vec::<usize>::new()); 
-    }
+    let mut supports = vec![vec![]; bricks.len()]; 
     const SIZE: usize = 10; 
     let mut grid = [[0; SIZE]; SIZE]; 
     for k in 0..bricks.len() {
@@ -75,10 +72,7 @@ fn part1(input: &Vec<String>) -> u32 {
 }
 
 fn reverse_graph(adj: &Vec<Vec<usize>>) -> Vec<Vec<usize>> {
-    let mut rev = Vec::<Vec<usize>>::new(); 
-    for _ in 0..adj.len() {
-        rev.push(Vec::<usize>::new()); 
-    }     
+    let mut rev = vec![vec![]; adj.len()]; 
     for (u, neighbors) in adj.iter().enumerate() {
         for v in neighbors {
             rev[*v].push(u); 
