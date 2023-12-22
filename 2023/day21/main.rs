@@ -72,29 +72,30 @@ fn part1(input: &Vec<String>) -> u32 {
 }
 
 fn part2(input: &Vec<String>) -> u64 {
-    const DISTANCE: usize = 26501365; 
+    // const DISTANCE: usize = 26501365; 
     let (r, c) = (input.len(), input[0].len()); 
     let (sy, sx) = get_start(input).unwrap();  
     let corners: [(usize, usize); 4] = [(0, 0), (r-1, 0), (0, c-1), (r-1, c-1)]; 
-    let dist = Vec::<Vec<Vec<Option<usize>>>>::new(); 
+    let mut dist = Vec::<Vec<Vec<Option<usize>>>>::new(); 
     for corner in corners {
         dist.push(bfs(input, corner)); 
     }
-    let mut cnt = 0; 
-    for i in 0..input.len() {
-        for j in 0..input.len() {
-            for k in 0..4 {
-                for l in 0..4 {
-                    let from = dist[k][sy][sx].unwrap(); 
-                    let to = dist[l][sy][sx].unwrap(); 
-                    let (mut m, mut pw) = (1, 1); 
-                    while from + to + m*r <= DISTANCE {
+    // let mut cnt = 0; 
+    // for i in 0..input.len() {
+    //     for j in 0..input.len() {
+    //         for k in 0..4 {
+    //             for l in 0..4 {
+    //                 let from = dist[k][sy][sx].unwrap(); 
+    //                 let to = dist[l][sy][sx].unwrap(); 
+    //                 let (mut m, mut pw) = (1, 1); 
+    //                 while from + to + m*r <= DISTANCE {
                         
-                    }
-                }
-            }
-        }
-    }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    return 0; 
 }
 
 fn main() {
@@ -104,5 +105,5 @@ fn main() {
         input.push(line.unwrap()); 
     }    
     println!("{}", part1(&input)); 
-    // println!("{}", part2(&input)); 
+    println!("{}", part2(&input)); 
 }
