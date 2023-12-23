@@ -51,18 +51,78 @@ fn bfs(input: &Vec<String>, (sy, sx): (usize, usize)) -> Vec<Vec<Option<usize>>>
     return dist; 
 }
 
-fn part1(input: &Vec<String>) -> u32 {
-    const DISTANCE: usize = 64; 
-    let (sy, sx) = get_start(input).unwrap(); 
-    let dist = bfs(input, (sy, sx)); 
+fn count_plots(input: &Vec<String>, max_dist: usize) -> u64 {
+    let (r, c) = (input.len(), input[0].len()); 
+    let (sy, sx) = get_start(input).unwrap();
+    let dist_start = bfs(input, (sy, sx)); 
+
+    let corners = [(0, 0), (0, c-1), (r-1, c-1), (r-1, 0)]; 
+    let mut dist_corners = vec![]; 
+    for i in 0..corners.len() {
+        dist_corners.push(bfs(input, corners[i])); 
+    }
+
+    let sides = [(sy, 0), (0, sx), (sy, c-1), (r-1, sx)]; 
+    let mut dist_sides = vec![]; 
+    for i in 0..sides.len() {
+        dist_sides.push(bfs(input, sides[i])); 
+    }
+
+    let max_steps = max_dist / r;  
+    let (mut evens, mut odds) = (vec![0; max_steps+1], vec![0; max_steps+1]); 
+    evens[0] = 1; 
+    for i in 1..max_steps+1 {
+        evens[i] = evens[i-1]; 
+        odds[i] = odds[i-1]; 
+        if i % 2 == 0 {
+            evens[i] += i as u64 + 1; 
+        } else {
+            odds[i] += i as u64 + 1; 
+        }
+    } 
+
     let mut cnt = 0; 
     for i in 0..input.len() {
         for j in 0..input[i].len() {
-            match dist[i][j] {
+            match dist_start[i][j] {
                 None => continue,
-                Some(d) => {
-                    if d <= DISTANCE && d%2 == DISTANCE%2 {
-                        cnt += 1; 
+                Some(d) => if d <= max_dist && (max_dist-d) % 2 == 0 { cnt += 1 },
+            }
+
+            for k in 0..corners.len() {
+                let opp = (k+2) % corners.len(); 
+                let to = dist_corners[k][sy][sx].unwrap() + 2; 
+                match dist_corners[opp][i][j] {
+                    None => continue,
+                    Some(from) => {
+                        if to + from <= max_dist {
+                            let steps = (max_dist - to - from) / r; 
+                            if (to + from) % 2 == max_dist % 2 {
+                                cnt += evens[steps]; 
+                            } 
+                            if (to + from + r) % 2 == max_dist % 2 {
+                                cnt += odds[steps]; 
+                            }
+                        }
+                    }
+                }
+            }
+
+            for k in 0..sides.len() {
+                let opp = (k+2) % sides.len(); 
+                let to = dist_sides[k][sy][sx].unwrap() + 1; 
+                match dist_sides[opp][i][j] {
+                    None => continue,
+                    Some(from) => {
+                        if to + from <= max_dist {
+                            let steps = (max_dist - to - from) / r; 
+                            if (to + from) % 2 == max_dist % 2 {
+                                cnt += (steps as u64 / 2) + 1; 
+                            }
+                            if (to + from + r) % 2 == max_dist % 2 {
+                                cnt += (steps as u64 + 1) / 2; 
+                            }
+                        }  
                     }
                 }
             }
@@ -71,31 +131,14 @@ fn part1(input: &Vec<String>) -> u32 {
     return cnt; 
 }
 
+fn part1(input: &Vec<String>) -> u64 {
+    const DISTANCE: usize = 64; 
+    return count_plots(input, DISTANCE); 
+}
+
 fn part2(input: &Vec<String>) -> u64 {
-    // const DISTANCE: usize = 26501365; 
-    let (r, c) = (input.len(), input[0].len()); 
-    let (sy, sx) = get_start(input).unwrap();  
-    let corners: [(usize, usize); 4] = [(0, 0), (r-1, 0), (0, c-1), (r-1, c-1)]; 
-    let mut dist = Vec::<Vec<Vec<Option<usize>>>>::new(); 
-    for corner in corners {
-        dist.push(bfs(input, corner)); 
-    }
-    // let mut cnt = 0; 
-    // for i in 0..input.len() {
-    //     for j in 0..input.len() {
-    //         for k in 0..4 {
-    //             for l in 0..4 {
-    //                 let from = dist[k][sy][sx].unwrap(); 
-    //                 let to = dist[l][sy][sx].unwrap(); 
-    //                 let (mut m, mut pw) = (1, 1); 
-    //                 while from + to + m*r <= DISTANCE {
-                        
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    return 0; 
+    const DISTANCE: usize = 26501365; 
+    return count_plots(input, DISTANCE);  
 }
 
 fn main() {
