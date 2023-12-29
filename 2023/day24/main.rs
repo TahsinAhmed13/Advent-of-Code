@@ -1,45 +1,78 @@
-use std::io::{self, BufRead}; 
-type Point = (f64, f64, f64); 
+use std::{io::{self, BufRead}, str::FromStr}; 
 
-fn parse_hailstone(line: &str) -> (Point, Point) {
-    let tokens: Vec<&str> = line.split_whitespace().collect(); 
-    let px = tokens[0][..tokens[0].len()-1].parse::<f64>().unwrap();  
-    let py = tokens[1][..tokens[1].len()-1].parse::<f64>().unwrap();  
-    let pz = tokens[2].parse::<f64>().unwrap();  
-    let vx = tokens[4][..tokens[4].len()-1].parse::<f64>().unwrap();  
-    let vy = tokens[5][..tokens[5].len()-1].parse::<f64>().unwrap();  
-    let vz = tokens[6].parse::<f64>().unwrap();  
-    return ((px, py, pz), (vx, vy, vz)); 
+const EPS: f64 = 1e-6; 
+
+#[derive(Copy, Clone, Debug)]
+pub struct Point { x: f64, y: f64, _z: f64 }
+#[derive(Copy, Clone, Debug)]
+pub struct Ray { o: Point, v: Point }
+
+impl Point {
+    fn new(x: f64, y: f64, _z: f64) -> Self {
+        Self { x, y, _z }
+    }
 }
 
-fn get_intersection((p1, v1): (Point, Point), (p2, v2): (Point, Point)) -> Option<(f64, f64)> {
-    const EPS: f64 = 1e-6; 
-    let num = v1.0*v2.0*(p1.1-p2.1)-v2.0*v1.1*p1.0+v1.0*v2.1*p2.0; 
-    let dom = v1.0*v2.1 - v2.0*v1.1; 
-    if dom.abs() <= EPS {
+impl Ray {
+    fn new(o: Point, v: Point) -> Self {
+        Self { o, v }
+    }
+}
+
+fn parse_ray_offset(line: &str) -> Ray {
+    let tokens: Vec<&str> = line.split_whitespace().collect(); 
+    let px = f64::from_str(&tokens[0][..tokens[0].len()-1]).unwrap(); 
+    let py = f64::from_str(&tokens[1][..tokens[1].len()-1]).unwrap(); 
+    let pz = f64::from_str(&tokens[2]).unwrap(); 
+    let vx = f64::from_str(&tokens[4][..tokens[4].len()-1]).unwrap(); 
+    let vy = f64::from_str(&tokens[5][..tokens[5].len()-1]).unwrap(); 
+    let vz = f64::from_str(&tokens[6]).unwrap(); 
+    Ray::new(Point::new(px, py, pz), Point::new(vx, vy, vz)) 
+}
+
+fn det2d(a: f64, b: f64, c: f64, d: f64) -> f64 {
+    a*d - b*c
+}
+
+fn get_time(from: f64, to: f64, vel: f64) -> Option<f64> {
+    let diff = to - from; 
+    if diff.abs() > EPS && vel.abs() <= EPS {
         return None; 
     }
-    let x = num / dom; 
-    let t1 = (x-p1.0)/v1.0; 
-    let t2 = (x-p2.0)/v2.0; 
-    let y = p1.1+v1.1*t1; 
-    return if t1 >= 0. && t2 >= 0. { Some((x, y)) } else { None }; 
+    Some(if diff.abs() <= EPS { 0. } else { diff / vel })
+}
+
+fn intersect2d(r1: &Ray, r2: &Ray) -> Option<Point> {
+    let c1 = det2d(r1.o.x, r1.v.x, r1.o.y, r1.v.y); 
+    let c2 = det2d(r2.o.x, r2.v.x, r2.o.y, r2.v.y); 
+    let d = det2d(r1.v.y, -r1.v.x, r2.v.y, -r2.v.x); 
+    if d.abs() <= EPS {
+        return None; 
+    }
+    let x = det2d(c1, -r1.v.x, c2, -r2.v.x) / d; 
+    let y = det2d(r1.v.y, c1, r2.v.y, c2) / d; 
+    let t1 = get_time(r1.o.x, x, r1.v.x); 
+    let t2 = get_time(r2.o.x, x, r2.v.x); 
+    if t1.is_none() || t2.is_none() {
+        return None; 
+    }
+    if t1.unwrap() >= 0. && t2.unwrap() >= 0. { Some(Point::new(x, y, 0.)) } else { None } 
 }
 
 fn part1(input: &Vec<String>) -> u32 {
     const MIN: f64 = 200000000000000.; 
     const MAX: f64 = 400000000000000.; 
-    let mut stones = vec![]; 
-    for line in input {
-        stones.push(parse_hailstone(&line)); 
-    }
+    let rays: Vec<Ray> = input
+        .into_iter()
+        .map(|line| parse_ray_offset(&line))
+        .collect(); 
     let mut cnt = 0; 
-    for i in 0..stones.len() {
-        for j in i+1..stones.len() {
-            match get_intersection(stones[i], stones[j]) {
+    for (i, r1) in rays.iter().enumerate() {
+        for r2 in &rays[i+1..] {
+            match intersect2d(r1, r2) {
                 None => continue,
-                Some((x, y)) => {
-                    if MIN <= x && x <= MAX && MIN <= y && y <= MAX {
+                Some(p) => {
+                    if MIN <= p.x && p.x <= MAX && MIN <= p.y && p.y <= MAX {
                         cnt += 1; 
                     }
                 }
@@ -49,10 +82,6 @@ fn part1(input: &Vec<String>) -> u32 {
     return cnt; 
 }
 
-fn part2(_input: &Vec<String>) -> u32 {
-    return 0; 
-}
-
 fn main() {
     let mut input = Vec::new(); 
     let reader = io::stdin().lock(); 
@@ -60,5 +89,4 @@ fn main() {
         input.push(line.unwrap()); 
     }    
     println!("{}", part1(&input)); 
-    println!("{}", part2(&input)); 
 }
